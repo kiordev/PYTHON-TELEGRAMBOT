@@ -3,52 +3,39 @@
 # Date: 16 APRIL
 
 import telebot
-from telebot import types # Для работы с кнопками
+import configure
+from telebot import types
 
 # Telegram Bot Token
-bot = telebot.TeleBot('5209918140:AAFLAgz1TIcV5R8EpYN5c-gm-dtYg1X9Q7M')
+bot = telebot.TeleBot(configure.config['token'])
 
 
-# Telegram Start Message
-@bot.message_handler(commands=['start'])  # Декоратор, для отслеживания вводимых команд
-def start(message):
-    meet_message = f"Привет, <b>{message.from_user.first_name} </b> <u>{message.from_user.last_name}</u>"
+@bot.message_handler(commands=['get_info', 'info'])
+def get_info(message):
+    markup_inline = types.InlineKeyboardMarkup()
+    item_yes = types.InlineKeyboardButton(text='Да', callback_data='yes')
+    item_no = types.InlineKeyboardButton(text='Нет', callback_data='no')
+    markup_inline.add(item_yes, item_no)
+    bot.send_message(message.chat.id, "Информация", reply_markup=markup_inline)
+
+@bot.callback_query_handler(func=lambda call: True)
+def answer(call):
+    if call.data == 'yes':
+        markup_reply = types.ReplyKeyboardMarkup(resize_keyboard=True)
+        item_id = types.KeyboardButton('МОЙ ID')
+        item_username = types.KeyboardButton('МОЙ НИК')
+        markup_reply.add(item_id, item_username)
+        bot.send_message(call.message.chat.id, "Нажми одну из кнопок", reply_markup=markup_reply)
+    elif call.data == 'no':
+        pass
 
 
-# Telegram Default Speech Message
-# @bot.message_handler()
-# def get_user_text(message):
-#     if message.text == 'Hello':
-#         bot.send_message(message.chat.id, "И тебе привет!", parse_mode='html')
-#     elif message.text == "id":
-#         bot.send_message(message.chat.id, f"Твой ИД: {message.from_user.id}", parse_mode='html')
-#     elif message.text == "photo":
-#         photo = open('Блокнот.png', 'rb')
-#         bot.send_photo(message.chat.id, photo)
-#     else:
-#         bot.send_message(message.chat.id, "Ты ввел какую-то хуйню", parse_mode='html')
+@bot.message_handler(content_types=['text'])
+def get_start(message):
+    if message.text == "МОЙ ID":
+        bot.send_message(message.chat.id, f"Твой ИД: {message.from_user.id}")
+    elif message.text == "МОЙ НИК":
+        bot.send_message(message.chat.id, f"Имя: {message.from_user.first_name} {message.from_user.last_name}")
 
 
-@bot.message_handler(content_types=["photo"])
-def get_user_photo(message):
-    bot.send_message(message.chat.id, "Крутое фото, лошара")
-
-# @bot.message_handler(commands=['website'])
-# def website(message):
-#     markup = types.InlineKeyboardMarkup()
-#     markup.add(types.InlineKeyboardButton("Сайт", url="https://pypi.org/project/pyTelegramBotAPI/#methods"))
-#     bot.send_message(message.chat.id, "Перейдите на сайт", reply_markup=markup)
-
-@bot.message_handler(commands=['help'])
-def help(message):
-    markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=1)
-    website = types.KeyboardButton("Сайт")
-    start = types.KeyboardButton("Start")
-
-    markup.add(website, start)
-    bot.send_message(message.chat.id, "Какие-то кнопки", reply_markup=markup)
-
-
-
-# For Regular Bot Work
-bot.polling(none_stop=True)
+bot.polling(none_stop=True, interval=0)

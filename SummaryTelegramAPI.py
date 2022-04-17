@@ -20,15 +20,22 @@
 # @bot.message_handler (ничего) - просто декоратор для обработки текста пользователя
 
 # === Button work ===
-# ...Кнопки внутри диалога...
-# markup = types.InlineKeyboardMarkup() | *название_переменной* = Инициализация кнопки (диалогой)
-# markup.add(types.InlineKeyboardButton("Сайт", url="https://pypi.org/project/pyTelegramBotAPI/#methods"))
-# ^создание кнопки как таковой(*Что на ней написано*, *че она делает*)
-# ...Кнопки за диалогом
+# ...Кнопки внутри сообщения...
+# markup_inline = types.InlineKeyboardMarkup() - Создание "панели с кнопкам"
+# item_yes = types.InlineKeyboardButton(text='Да', callback_data='yes') - Создание самой кнопки, text - текст на кнопке
+# markup_inline.add(item_yes) - добавление кнопки на клавиатуру
+# bot.send_message(message.chat.id, "Информация", reply_markup=markup_inline) - прикрепение клавиатуры к сообщению
+# bot.callback_query_handler(func=lambda call: True) - декоратор при работы с использованием кнопок
+
+# ...Кнопки за сообщением
+# Специфика кнопок заключается в том, что они вводят прописанные им текст  - МОЙ ИД, МОЙ НИК - как текст пользователя
+# markup_reply = types.ReplyKeyboardMarkup(resize_keyboard=True) Создание "панели с кнопкам" (под инпутом)
+# item_id = types.KeyboardButton('МОЙ ID') - создание самой кнопки
+# markup_reply.add(item_id)
 
 # === Work With User ===
 # message.from_user.first_name - обращение к имени
-# message.from_user.first_name - обращение к фамилии
+# message.from_user.last_name - обращение к фамилии
 # список параметров можно найти через bot.send_message(message.chat.id, message, parse_mode='html')
 # @bot.message_handler(content_types=["photo"]) - декоратор для работы с файлами приёма пользователем
 
